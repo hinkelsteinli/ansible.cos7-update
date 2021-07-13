@@ -12,12 +12,8 @@
     poll: 0  # fire and forget
 
   - name: wait for host to finish reboot
-    wait_for:
-      port: "{{ (ansible_port|default(ansible_ssh_port))|default(22) }}"
-      host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
-      search_regex: OpenSSH
+    wait_for_connection:
       delay: 10  # do not check for at least 10 sec
-    connection: local
 
   - name: check if host has booted within last 300 sec
     shell: test $(cat /proc/uptime | cut -d. -f1) -lt 300
@@ -28,5 +24,5 @@
     fail:
       msg: "{{ ansible_host }} has not booted, manual check needed"
     when: reboot_check.rc != 0
-  when: '"needs_restarting.stdout|int" != 0 and "ospatch_reboot" == true'
+  when: 'needs_restarting.stdout|int != 0 and ospatch_reboot == true'
 ...
